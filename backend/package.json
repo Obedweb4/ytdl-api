@@ -1,0 +1,19 @@
+{
+  "name": "obed-tech-yt-api",
+  "version": "3.0.0",
+  "description": "OBED TECH YouTube API — search, video info, likes, comments, channel, related, stream, download. No API key needed.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev":   "node --watch server.js"
+  },
+  "dependencies": {
+    "@distube/ytdl-core": "^4.16.10",
+    "cors":    "^2.8.5",
+    "express": "^4.19.2",
+    "dotenv":  "^16.4.5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

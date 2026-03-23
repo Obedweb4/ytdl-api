@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>YouTube API — Docs & Playground</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --bg2: #111111;
+    --bg3: #181818;
+    --border: #222222;
+    --border2: #2a2a2a;
+    --red: #ff3c3c;
+    --red-dim: #ff3c3c22;
+    --red-mid: #ff3c3c55;
+    --white: #f0f0f0;
+    --gray: #666;
+    --gray2: #888;
+    --green: #22c55e;
+    --yellow: #fbbf24;
+    --blue: #3b82f6;
+    --font: 'Syne', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: var(--font);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── GRID BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,60,60,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,60,60,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── LAYOUT ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── SIDEBAR ── */
+  nav {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .nav-logo {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo-mark {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--red);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .nav-logo h1 {
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    color: var(--white);
+  }
+
+  .nav-logo p {
+    font-size: 11px;
+    color: var(--gray);
+    font-family: var(--mono);
+    margin-top: 2px;
+  }
+
+  .nav-section {
+    padding: 20px 16px 8px;
+  }
+
+  .nav-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gray);
+    padding: 0 8px;
+    margin-bottom: 4px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+    color: var(--gray2);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .nav-item:hover { background: var(--bg3); color: var(--white); }
+  .nav-item.active { background: var(--red-dim); color: var(--red); }
+
+  .method-badge {
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 500;
+    padding: 2px 6px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    letter-spacing: 0.5px;
+  }
+
+  .method-get { background: #22c55e22; color: var(--green); border: 1px solid #22c55e33; }
+  .method-post { background: #3b82f622; color: var(--blue); border: 1px solid #3b82f633; }
+
+  .nav-status {
+    margin-top: auto;
+    padding: 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--gray);
+    font-family: var(--mono);
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* ── MAIN CONTENT ── */
+  main {
+    padding: 0;
+    overflow: hidden;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 64px 60px 48px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255,60,60,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--red-dim);
+    border: 1px solid var(--red-mid);
+    border-radius: 100px;
+    padding: 4px 14px;
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--red);
+    margin-bottom: 24px;
+    letter-spacing: 0.5px;
+  }
+
+  .hero h1 {
+    font-size: 56px;
+    font-weight: 800;
+    letter-spacing: -2px;
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+
+  .hero h1 span { color: var(--red); }
+
+  .hero p {
+    font-size: 15px;
+    color: var(--gray2);
+    max-width: 560px;
+    line-height: 1.7;
+    margin-bottom: 32px;
+    font-weight: 400;
+  }
+
+  .hero-base-url {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+
+  .hero-base-url .label { color: var(--gray); font-size: 11px; }
+  .hero-base-url .url { color: var(--white); }
+
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    color: var(--gray);
+    cursor: pointer;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-family: var(--mono);
+    transition: all 0.15s;
+  }
+  .copy-btn:hover { background: var(--bg2); color: var(--white); }
+
+  /* ── ENDPOINTS ── */
+  .endpoints { padding: 40px 60px 80px; }
+
+  .endpoint-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    transition: border-color 0.2s;
+    background: var(--bg2);
+  }
+
+  .endpoint-card:hover { border-color: var(--border2); }
+  .endpoint-card.expanded { border-color: #333; }
+
+  .endpoint-header {
+    padding: 20px 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    user-select: none;
+  }
+
+  .endpoint-header:hover { background: rgba(255,255,255,0.02); }
+
+  .endpoint-method {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 5px;
+    flex-shrink: 0;
+    letter-spacing: 0.5px;
+  }
+
+  .endpoint-path {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--white);
+    font-weight: 500;
+  }
+
+  .endpoint-desc {
+    font-size: 13px;
+    color: var(--gray);
+    margin-left: auto;
+    margin-right: 16px;
+  }
+
+  .chevron {
+    color: var(--gray);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+    font-size: 16px;
+  }
+
+  .expanded .chevron { transform: rotate(180deg); }
+
+  .endpoint-body {
+    display: none;
+    border-top: 1px solid var(--border);
+  }
+
+  .expanded .endpoint-body { display: block; }
+
+  .endpoint-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    background: var(--bg);
+  }
+
+  .endpoint-tab {
+    padding: 10px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    user-select: none;
+    letter-spacing: 0.3px;
+  }
+
+  .endpoint-tab:hover { color: var(--white); }
+  .endpoint-tab.active { color: var(--red); border-bottom-color: var(--red); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .params-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .params-table th {
+    text-align: left;
+    padding: 10px 24px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gray);
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .params-table td {
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  .params-table tr:last-child td { border-bottom: none; }
+
+  .param-name {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--white);
+    font-weight: 500;
+  }
+
+  .param-required {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--red);
+    background: var(--red-dim);
+    border: 1px solid var(--red-mid);
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-left: 6px;
+  }
+
+  .param-optional {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gray);
+    background: #222;
+    border: 1px solid #333;
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-left: 6px;
+  }
+
+  .param-type {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--blue);
+  }
+
+  .param-default {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--yellow);
+  }
+
+  /* ── PLAYGROUND ── */
+  .playground {
+    padding: 20px 24px;
+  }
+
+  .playground-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .playground-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 180px;
+  }
+
+  .playground-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--gray);
+    font-family: var(--mono);
+  }
+
+  .playground-input,
+  .playground-select {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: var(--white);
+    font-family: var(--mono);
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+
+  .playground-input:focus,
+  .playground-select:focus {
+    border-color: var(--red);
+  }
+
+  .playground-select option { background: var(--bg3); }
+
+  .run-btn {
+    background: var(--red);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 24px;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    align-self: flex-end;
+  }
+
+  .run-btn:hover { background: #ff5555; transform: translateY(-1px); }
+  .run-btn:active { transform: translateY(0); }
+  .run-btn:disabled { background: #333; cursor: not-allowed; transform: none; }
+
+  /* ── RESPONSE ── */
+  .response-section {
+    padding: 0 24px 20px;
+  }
+
+  .response-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .response-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  .status-200 { color: var(--green); }
+  .status-4xx { color: var(--red); }
+  .status-5xx { color: var(--yellow); }
+  .status-loading { color: var(--gray); }
+
+  .response-time {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--gray);
+  }
+
+  pre.response-body {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.6;
+    color: #ccc;
+    max-height: 400px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  pre.response-body.empty {
+    color: var(--gray);
+    font-style: italic;
+  }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    position: relative;
+    margin: 16px 24px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .code-block-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg3);
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-lang {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .code-copy {
+    background: none;
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    color: var(--gray);
+    cursor: pointer;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-family: var(--mono);
+    transition: all 0.15s;
+  }
+
+  .code-copy:hover { color: var(--white); background: var(--border2); }
+
+  pre.code {
+    background: var(--bg);
+    padding: 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.7;
+    overflow-x: auto;
+    color: #ddd;
+    margin: 0;
+  }
+
+  .hl-key { color: #c792ea; }
+  .hl-str { color: #c3e88d; }
+  .hl-num { color: #f78c6c; }
+  .hl-bool { color: var(--yellow); }
+  .hl-null { color: var(--gray); }
+
+  /* ── SECTION HEADER ── */
+  .section-title {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+    color: var(--white);
+  }
+
+  .section-sub {
+    font-size: 13px;
+    color: var(--gray);
+    margin-bottom: 28px;
+    line-height: 1.6;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    nav { position: static; height: auto; flex-direction: row; overflow-x: auto; }
+    .hero { padding: 40px 24px 32px; }
+    .hero h1 { font-size: 36px; }
+    .endpoints { padding: 24px 24px 60px; }
+    .endpoint-desc { display: none; }
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <nav>
+    <div class="nav-logo">
+      <div class="nav-logo-mark">
+        <div class="logo-icon">▶</div>
+        <h1>YT API</h1>
+      </div>
+      <p>v1.0 · REST · No Key Required</p>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Overview</div>
+      <a class="nav-item active" href="#overview" onclick="setActive(this)">
+        Introduction
+      </a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Endpoints</div>
+      <a class="nav-item" href="#health" onclick="setActive(this)">
+        <span class="method-badge method-get">GET</span>
+        /health
+      </a>
+      <a class="nav-item" href="#search" onclick="setActive(this)">
+        <span class="method-badge method-get">GET</span>
+        /search
+      </a>
+      <a class="nav-item" href="#video" onclick="setActive(this)">
+        <span class="method-badge method-get">GET</span>
+        /video
+      </a>
+      <a class="nav-item" href="#comments" onclick="setActive(this)">
+        <span class="method-badge method-get">GET</span>
+        /comments
+      </a>
+      <a class="nav-item" href="#channel" onclick="setActive(this)">
+        <span class="method-badge method-get">GET</span>
+        /channel
+      </a>
+      <a class="nav-item" href="#related" onclick="setActive(this)">
+        <span class="method-badge method-get">GET</span>
+        /related
+      </a>
+      <a class="nav-item" href="#trending" onclick="setActive(this)">
+        <span class="method-badge method-get">GET</span>
+        /trending
+      </a>
+      <a class="nav-item" href="#stream" onclick="setActive(this)">
+        <span class="method-badge method-get">GET</span>
+        /stream
+      </a>
+      <a class="nav-item" href="#download" onclick="setActive(this)">
+        <span class="method-badge method-get">GET</span>
+        /download
+      </a>
+    </div>
+
+    <div class="nav-status">
+      <div class="status-dot"></div>
+      <span>API operational</span>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main>
+    <!-- HERO -->
+    <section class="hero" id="overview">
+      <div class="hero-eyebrow">
+        <span>●</span>
+        YouTube REST API — No Key Required
+      </div>
+      <h1>Build with<br><span>YouTube</span> data.</h1>
+      <p>
+        A smart, lightweight API server for YouTube — search videos, fetch metadata,
+        browse trending, stream and download. Zero API keys. Single file. Works out of the box.
+      </p>
+      <div class="hero-base-url">
+        <span class="label">BASE URL</span>
+        <span class="url" id="base-url-display"></span>
+        <button class="copy-btn" onclick="copyBase()">copy</button>
+      </div>
+    </section>
+
+    <!-- ENDPOINTS -->
+    <section class="endpoints">
+      <div class="section-title">Endpoints</div>
+      <div class="section-sub">Click any endpoint to expand params, examples, and live playground.</div>
+
+      <!-- HEALTH -->
+      <div class="endpoint-card" id="health">
+        <div class="endpoint-header" onclick="toggleCard(this)">
+          <span class="endpoint-method method-get">GET</span>
+          <span class="endpoint-path">/api/health</span>
+          <span class="endpoint-desc">Server health check</span>
+          <span class="chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-tabs">
+            <div class="endpoint-tab active" onclick="switchTab(this, 'health-params')">Parameters</div>
+            <div class="endpoint-tab" onclick="switchTab(this, 'health-example')">Example</div>
+            <div class="endpoint-tab" onclick="switchTab(this, 'health-try')">Try It</div>
+          </div>
+          <div id="health-params" class="tab-content active">
+            <table class="params-table">
+              <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+              <tr>
+                <td colspan="4" style="padding:20px 24px; color:var(--gray); font-style:italic; font-size:13px;">No parameters required.</td>
+              </tr>
+            </table>
+          </div>
+          <div id="health-example" class="tab-content">
+            <div class="code-block">
+              <div class="code-block-header">
+                <span class="code-lang">curl</span>
+                <button class="code-copy" onclick="copyCode(this)">copy</button>
+              </div>
+              <pre class="code">curl http://localhost:3000/api/health</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-block-header">
+                <span class="code-lang">response</span>
+              </div>
+              <pre class="code">{
+  <span class="hl-key">"status"</span>: <span class="hl-str">"ok"</span>,
+  <span class="hl-key">"timestamp"</span>: <span class="hl-str">"2025-01-15T12:00:00.000Z"</span>
+}</pre>
+            </div>
+          </div>
+          <div id="health-try" class="tab-content">
+            <div class="playground">
+              <div class="playground-row">
+                <div class="playground-input-group" style="flex:2">
+                  <span class="playground-label">URL</span>
+                  <input class="playground-input" value="" id="health-url" />
+                </div>
+                <button class="run-btn" onclick="runRequest('health')">▶ Send</button>
+              </div>
+            </div>
+            <div class="response-section">
+              <div class="response-header">
+                <div class="response-status" id="health-status"></div>
+                <div class="response-time" id="health-time"></div>
+              </div>
+              <pre class="response-body empty" id="health-response">// Response will appear here</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEARCH -->
+      <div class="endpoint-card" id="search">
+        <div class="endpoint-header" onclick="toggleCard(this)">
+          <span class="endpoint-method method-get">GET</span>
+          <span class="endpoint-path">/api/search</span>
+          <span class="endpoint-desc">Search YouTube videos</span>
+          <span class="chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-tabs">
+            <div class="endpoint-tab active" onclick="switchTab(this, 'search-params')">Parameters</div>
+            <div class="endpoint-tab" onclick="switchTab(this, 'search-example')">Example</div>
+            <div class="endpoint-tab" onclick="switchTab(this, 'search-try')">Try It</div>
+          </div>
+          <div id="search-params" class="tab-content active">
+            <table class="params-table">
+              <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th><th>Default</th></tr>
+              <tr>
+                <td><span class="param-name">q</span><span class="param-required">required</span></td>
+                <td><span class="param-type">string</span></td>
+                <td>Yes</td>
+                <td style="color:var(--gray2)">Search query string</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><span class="param-name">type</span><span class="param-optional">optional</span></td>
+                <td><span class="param-type">string</span></td>
+                <td>No</td>
+                <td style="color:var(--gray2)">Result type: <code style="font-family:var(--mono);font-size:11px">video</code> | <code style="font-family:var(--mono);font-size:11px">channel</code></td>
+                <td><span class="param-default">video</span></td>
+              </tr>
+              <tr>
+                <td><span class="param-name">order</span><span class="param-optional">optional</span></td>
+                <td><span class="param-type">string</span></td>
+                <td>No</td>
+                <td style="color:var(--gray2)">Sort order: <code style="font-family:var(--mono);font-size:11px">relevance</code> | <code style="font-family:var(--mono);font-size:11px">date</code></td>
+                <td><span class="param-default">relevance</span></td>
+              </tr>
+              <tr>
+                <td><span class="param-name">limit</span><span class="param-optional">optional</span></td>
+                <td><span class="param-type">number</span></td>
+                <td>No</td>
+                <td style="color:var(--gray2)">Max results to return (1–50)</td>
+                <td><span class="param-default">20</span></td>
+              </tr>
+            </table>
+          </div>
+          <div id="search-example" class="tab-content">
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-lang">curl</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+              <pre class="code">curl "http://localhost:3000/api/search?q=lo-fi+music&limit=5"</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-lang">response</span></div>
+              <pre class="code">{
+  <span class="hl-key">"query"</span>: <span class="hl-str">"lo-fi music"</span>,
+  <span class="hl-key">"total"</span>: <span class="hl-num">5</span>,
+  <span class="hl-key">"items"</span>: [
+    {
+      <span class="hl-key">"id"</span>: <span class="hl-str">"jfKfPfyJRdk"</span>,
+      <span class="hl-key">"title"</span>: <span class="hl-str">"lofi hip hop radio"</span>,
+      <span class="hl-key">"channel"</span>: <span class="hl-str">"Lofi Girl"</span>,
+      <span class="hl-key">"thumbnail"</span>: <span class="hl-str">"https://i.ytimg.com/vi/jfKfPfyJRdk/hqdefault.jpg"</span>,
+      <span class="hl-key">"duration"</span>: <span class="hl-str">"LIVE"</span>,
+      <span class="hl-key">"views"</span>: <span class="hl-str">"10M views"</span>,
+      <span class="hl-key">"url"</span>: <span class="hl-str">"https://www.youtube.com/watch?v=jfKfPfyJRdk"</span>
+    }
+  ]
+}</pre>
+            </div>
+          </div>
+          <div id="search-try" class="tab-content">
+            <div class="playground">
+              <div class="playground-row">
+                <div class="playground-input-group" style="flex:3">
+                  <span class="playground-label">Query (q)</span>
+                  <input class="playground-input" id="search-q" value="lo-fi music" placeholder="Search term..." />
+                </div>
+                <div class="playground-input-group">
+                  <span class="playground-label">Type</span>
+                  <select class="playground-select" id="search-type">
+                    <option value="video">video</option>
+                    <option value="channel">channel</option>
+                  </select>
+                </div>
+                <div class="playground-input-group">
+                  <span class="playground-label">Order</span>
+                  <select class="playground-select" id="search-order">
+                    <option value="relevance">relevance</option>
+                    <option value="date">date</option>
+                  </select>
+                </div>
+                <div class="playground-input-group" style="max-width:90px">
+                  <span class="playground-label">Limit</span>
+                  <input class="playground-input" id="search-limit" value="5" type="number" min="1" max="50" />
+                </div>
+                <button class="run-btn" onclick="runSearch()">▶ Send</button>
+              </div>
+            </div>
+            <div class="response-section">
+              <div class="response-header">
+                <div class="response-status" id="search-status"></div>
+                <div class="response-time" id="search-time"></div>
+              </div>
+              <pre class="response-body empty" id="search-response">// Response will appear here</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIDEO -->
+      <div class="endpoint-card" id="video">
+        <div class="endpoint-header" onclick="toggleCard(this)">
+          <span class="endpoint-method method-get">GET</span>
+          <span class="endpoint-path">/api/video</span>
+          <span class="endpoint-desc">Video metadata + formats</span>
+          <span class="chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-tabs">
+            <div class="endpoint-tab active" onclick="switchTab(this, 'video-params')">Parameters</div>
+            <div class="endpoint-tab" onclick="switchTab(this, 'video-example')">Example</div>
+            <div class="endpoint-tab" onclick="switchTab(this, 'video-try')">Try It</div>
+          </div>
+          <div id="video-params" class="tab-content active">
+            <table class="params-table">
+              <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+              <tr>
+                <td><span class="param-name">id</span><span class="param-required">required</span></td>
+                <td><span class="param-type">string</span></td>
+                <td>Yes</td>
+                <td style="color:var(--gray2)">YouTube video ID (11 characters)</td>
+              </tr>
+            </table>
+          </div>
+          <div id="video-example" class="tab-content">
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-lang">curl</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+              <pre class="code">curl "http://localhost:3000/api/video?id=dQw4w9WgXcQ"</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-lang">response</span></div>
+              <pre class="code">{
+  <span class="hl-key">"id"</span>: <span class="hl-str">"dQw4w9WgXcQ"</span>,
+  <span class="hl-key">"title"</span>: <span class="hl-str">"Rick Astley - Never Gonna Give You Up"</span>,
+  <span class="hl-key">"channel"</span>: <span class="hl-str">"Rick Astley"</span>,
+  <span class="hl-key">"duration"</span>: <span class="hl-str">"212"</span>,
+  <span class="hl-key">"views"</span>: <span class="hl-str">"1400000000"</span>,
+  <span class="hl-key">"formats"</span>: [
+    {
+      <span class="hl-key">"itag"</span>: <span class="hl-num">22</span>,
+      <span class="hl-key">"quality"</span>: <span class="hl-str">"720p"</span>,
+      <span class="hl-key">"container"</span>: <span class="hl-str">"mp4"</span>,
+      <span class="hl-key">"hasVideo"</span>: <span class="hl-bool">true</span>,
+      <span class="hl-key">"hasAudio"</span>: <span class="hl-bool">true</span>
+    }
+  ]
+}</pre>
+            </div>
+          </div>
+          <div id="video-try" class="tab-content">
+            <div class="playground">
+              <div class="playground-row">
+                <div class="playground-input-group" style="flex:2">
+                  <span class="playground-label">Video ID</span>
+                  <input class="playground-input" id="video-id" value="dQw4w9WgXcQ" placeholder="dQw4w9WgXcQ" />
+                </div>
+                <button class="run-btn" onclick="runVideo()">▶ Send</button>
+              </div>
+            </div>
+            <div class="response-section">
+              <div class="response-header">
+                <div class="response-status" id="video-status"></div>
+                <div class="response-time" id="video-time"></div>
+              </div>
+              <pre class="response-body empty" id="video-response">// Response will appear here</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- COMMENTS -->
+      <div class="endpoint-card" id="comments">
+        <div class="endpoint-header" onclick="toggleCard(this)">
+          <span class="endpoint-method method-get">GET</span>
+          <span class="endpoint-path">/api/comments</span>
+          <span class="endpoint-desc">Fetch video comments</span>
+          <span class="chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-tabs">
+            <div class="endpoint-tab active" onclick="switchTab(this, 'comments-params')">Parameters</div>
+            <div class="endpoint-tab" onclick="switchTab(this, 'comments-example')">Example</div>
+            <div class="endpoint-tab" onclick="switchTab(this, 'comments-try')">Try It</div>
+          </div>
+          <div id="comments-params" class="tab-content active">
+            <table class="params-table">
+              <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th><th>Default</th></tr>
+              <tr>
+                <td><span class="param-name">id</span><span class="param-required">required</span></td>
+                <td><span class="param-type">string</span></td><td>Yes</td>
+                <td style="color:var(--gray2)">YouTube video ID (11 chars)</td><td>—</td>
+              </tr>
+              <tr>
+                <td><span class="param-name">limit</span><span class="param-optional">optional</span></td>
+                <td><span class="param-type">number</span></td><td>No</td>
+                <td style="color:var(--gray2)">Number of comments to return (1–50)</td>
+                <td><span class="param-default">20</span></td>
+              </tr>
+            </table>
+            <p style="color:var(--gray);font-size:12px;font-family:var(--mono);margin-top:12px">Returns: commentCount, author, avatar, text, likes, isPinned, isOwner, replyCount</p>
+          </div>
+          <div id="comments-example" class="tab-content">
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-lang">curl</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+              <pre class="code">curl "http://localhost:3000/api/comments?id=dQw4w9WgXcQ&limit=10"</pre>
+            </div>
+          </div>
+          <div id="comments-try" class="tab-content">
+            <div class="playground">
+              <div class="playground-row">
+                <div class="playground-input-group" style="flex:2">
+                  <span class="playground-label">Video ID</span>
+                  <input class="playground-input" id="comments-id" value="dQw4w9WgXcQ" />
+                </div>
+                <div class="playground-input-group">
+                  <span class="playground-label">Limit</span>
+                  <input class="playground-input" id="comments-limit" value="10" type="number" min="1" max="50" />
+                </div>
+                <button class="run-btn" onclick="runComments()">▶ Run</button>
+              </div>
+              <div class="response-meta"><div class="response-status" id="comments-status"></div><div class="response-time" id="comments-time"></div></div>
+              <pre class="response-body empty" id="comments-response">// Response will appear here</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHANNEL -->
+      <div class="endpoint-card" id="channel">
+        <div class="endpoint-header" onclick="toggleCard(this)">
+          <span class="endpoint-method method-get">GET</span>
+          <span class="endpoint-path">/api/channel</span>
+          <span class="endpoint-desc">Channel info + recent videos</span>
+          <span class="chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-tabs">
+            <div class="endpoint-tab active" onclick="switchTab(this, 'channel-params')">Parameters</div>
+            <div class="endpoint-tab" onclick="switchTab(this, 'channel-example')">Example</div>
+            <div class="endpoint-tab" onclick="switchTab(this, 'channel-try')">Try It</div>
+          </div>
+          <div id="channel-params" class="tab-content active">
+            <table class="params-table">
+              <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th><th>Default</th></tr>
+              <tr>
+                <td><span class="param-name">id</span><span class="param-optional">optional</span></td>
+                <td><span class="param-type">string</span></td><td>One of id/handle</td>
+                <td style="color:var(--gray2)">Channel ID starting with UC…</td><td>—</td>
+              </tr>
+              <tr>
+                <td><span class="param-name">handle</span><span class="param-optional">optional</span></td>
+                <td><span class="param-type">string</span></td><td>One of id/handle</td>
+                <td style="color:var(--gray2)">Channel handle e.g. <code style="font-family:var(--mono);font-size:11px">@MrBeast</code></td><td>—</td>
+              </tr>
+            </table>
+            <p style="color:var(--gray);font-size:12px;font-family:var(--mono);margin-top:12px">Returns: name, handle, subscribers, videosCount, avatar, banner, verified, badges, recentVideos[]</p>
+          </div>
+          <div id="channel-example" class="tab-content">
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-lang">curl — by handle</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+              <pre class="code">curl "http://localhost:3000/api/channel?handle=@MrBeast"</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-lang">curl — by ID</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+              <pre class="code">curl "http://localhost:3000/api/channel?id=UCX6OQ3DkcsbYNE6H8uQQuVA"</pre>
+            </div>
+          </div>
+          <div id="channel-try" class="tab-content">
+            <div class="playground">
+              <div class="playground-row">
+                <div class="playground-input-group" style="flex:2">
+                  <span class="playground-label">Handle (or use ID below)</span>
+                  <input class="playground-input" id="channel-handle" value="@MrBeast" placeholder="@channelname" />
+                </div>
+                <button class="run-btn" onclick="runChannel()">▶ Run</button>
+              </div>
+              <div class="response-meta"><div class="response-status" id="channel-status"></div><div class="response-time" id="channel-time"></div></div>
+              <pre class="response-body empty" id="channel-response">// Response will appear here</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RELATED -->
+      <div class="endpoint-card" id="related">
+        <div class="endpoint-header" onclick="toggleCard(this)">
+          <span class="endpoint-method method-get">GET</span>
+          <span class="endpoint-path">/api/related</span>
+          <span class="endpoint-desc">Related / recommended videos</span>
+          <span class="chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-tabs">
+            <div class="endpoint-tab active" onclick="switchTab(this, 'related-params')">Parameters</div>
+            <div class="endpoint-tab" onclick="switchTab(this, 'related-example')">Example</div>
+            <div class="endpoint-tab" onclick="switchTab(this, 'related-try')">Try It</div>
+          </div>
+          <div id="related-params" class="tab-content active">
+            <table class="params-table">
+              <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th><th>Default</th></tr>
+              <tr>
+                <td><span class="param-name">id</span><span class="param-required">required</span></td>
+                <td><span class="param-type">string</span></td><td>Yes</td>
+                <td style="color:var(--gray2)">YouTube video ID</td><td>—</td>
+              </tr>
+              <tr>
+                <td><span class="param-name">limit</span><span class="param-optional">optional</span></td>
+                <td><span class="param-type">number</span></td><td>No</td>
+                <td style="color:var(--gray2)">Number of results (1–50)</td>
+                <td><span class="param-default">20</span></td>
+              </tr>
+            </table>
+          </div>
+          <div id="related-example" class="tab-content">
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-lang">curl</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+              <pre class="code">curl "http://localhost:3000/api/related?id=dQw4w9WgXcQ&limit=10"</pre>
+            </div>
+          </div>
+          <div id="related-try" class="tab-content">
+            <div class="playground">
+              <div class="playground-row">
+                <div class="playground-input-group" style="flex:2">
+                  <span class="playground-label">Video ID</span>
+                  <input class="playground-input" id="related-id" value="dQw4w9WgXcQ" />
+                </div>
+                <div class="playground-input-group">
+                  <span class="playground-label">Limit</span>
+                  <input class="playground-input" id="related-limit" value="10" type="number" min="1" max="50" />
+                </div>
+                <button class="run-btn" onclick="runRelated()">▶ Run</button>
+              </div>
+              <div class="response-meta"><div class="response-status" id="related-status"></div><div class="response-time" id="related-time"></div></div>
+              <pre class="response-body empty" id="related-response">// Response will appear here</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRENDING -->
+      <div class="endpoint-card" id="trending">
+        <div class="endpoint-header" onclick="toggleCard(this)">
+          <span class="endpoint-method method-get">GET</span>
+          <span class="endpoint-path">/api/trending</span>
+          <span class="endpoint-desc">Trending videos by region</span>
+          <span class="chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-tabs">
+            <div class="endpoint-tab active" onclick="switchTab(this, 'trending-params')">Parameters</div>
+            <div class="endpoint-tab" onclick="switchTab(this, 'trending-example')">Example</div>
+            <div class="endpoint-tab" onclick="switchTab(this, 'trending-try')">Try It</div>
+          </div>
+          <div id="trending-params" class="tab-content active">
+            <table class="params-table">
+              <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th><th>Default</th></tr>
+              <tr>
+                <td><span class="param-name">region</span><span class="param-optional">optional</span></td>
+                <td><span class="param-type">string</span></td>
+                <td>No</td>
+                <td style="color:var(--gray2)">ISO 3166-1 country code (US, GB, KE, IN…)</td>
+                <td><span class="param-default">US</span></td>
+              </tr>
+              <tr>
+                <td><span class="param-name">limit</span><span class="param-optional">optional</span></td>
+                <td><span class="param-type">number</span></td>
+                <td>No</td>
+                <td style="color:var(--gray2)">Max results</td>
+                <td><span class="param-default">20</span></td>
+              </tr>
+            </table>
+          </div>
+          <div id="trending-example" class="tab-content">
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-lang">curl</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+              <pre class="code">curl "http://localhost:3000/api/trending?region=US&limit=10"</pre>
+            </div>
+          </div>
+          <div id="trending-try" class="tab-content">
+            <div class="playground">
+              <div class="playground-row">
+                <div class="playground-input-group">
+                  <span class="playground-label">Region</span>
+                  <select class="playground-select" id="trending-region">
+                    <option value="US">US</option>
+                    <option value="GB">GB</option>
+                    <option value="KE">KE</option>
+                    <option value="IN">IN</option>
+                    <option value="JP">JP</option>
+                    <option value="DE">DE</option>
+                    <option value="BR">BR</option>
+                    <option value="NG">NG</option>
+                    <option value="ZA">ZA</option>
+                  </select>
+                </div>
+                <div class="playground-input-group" style="max-width:90px">
+                  <span class="playground-label">Limit</span>
+                  <input class="playground-input" id="trending-limit" value="10" type="number" min="1" max="50" />
+                </div>
+                <button class="run-btn" onclick="runTrending()">▶ Send</button>
+              </div>
+            </div>
+            <div class="response-section">
+              <div class="response-header">
+                <div class="response-status" id="trending-status"></div>
+                <div class="response-time" id="trending-time"></div>
+              </div>
+              <pre class="response-body empty" id="trending-response">// Response will appear here</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STREAM -->
+      <div class="endpoint-card" id="stream">
+        <div class="endpoint-header" onclick="toggleCard(this)">
+          <span class="endpoint-method method-get">GET</span>
+          <span class="endpoint-path">/api/stream</span>
+          <span class="endpoint-desc">Stream video/audio inline</span>
+          <span class="chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-tabs">
+            <div class="endpoint-tab active" onclick="switchTab(this, 'stream-params')">Parameters</div>
+            <div class="endpoint-tab" onclick="switchTab(this, 'stream-example')">Example</div>
+            <div class="endpoint-tab" onclick="switchTab(this, 'stream-try')">Try It</div>
+          </div>
+          <div id="stream-params" class="tab-content active">
+            <table class="params-table">
+              <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th><th>Default</th></tr>
+              <tr>
+                <td><span class="param-name">id</span><span class="param-required">required</span></td>
+                <td><span class="param-type">string</span></td>
+                <td>Yes</td>
+                <td style="color:var(--gray2)">YouTube video ID</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><span class="param-name">format</span><span class="param-optional">optional</span></td>
+                <td><span class="param-type">string</span></td>
+                <td>No</td>
+                <td style="color:var(--gray2)"><code style="font-family:var(--mono);font-size:11px">mp4</code> | <code style="font-family:var(--mono);font-size:11px">mp3</code></td>
+                <td><span class="param-default">mp4</span></td>
+              </tr>
+              <tr>
+                <td><span class="param-name">quality</span><span class="param-optional">optional</span></td>
+                <td><span class="param-type">string</span></td>
+                <td>No</td>
+                <td style="color:var(--gray2)"><code style="font-family:var(--mono);font-size:11px">highest</code> | <code style="font-family:var(--mono);font-size:11px">lowest</code> | itag number</td>
+                <td><span class="param-default">highest</span></td>
+              </tr>
+            </table>
+          </div>
+          <div id="stream-example" class="tab-content">
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-lang">curl — stream mp4</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+              <pre class="code">curl "http://localhost:3000/api/stream?id=dQw4w9WgXcQ&format=mp4" -o video.mp4</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-lang">curl — stream mp3</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+              <pre class="code">curl "http://localhost:3000/api/stream?id=dQw4w9WgXcQ&format=mp3" -o audio.mp3</pre>
+            </div>
+          </div>
+          <div id="stream-try" class="tab-content">
+            <div class="playground">
+              <div class="playground-row">
+                <div class="playground-input-group" style="flex:2">
+                  <span class="playground-label">Video ID</span>
+                  <input class="playground-input" id="stream-id" value="dQw4w9WgXcQ" />
+                </div>
+                <div class="playground-input-group">
+                  <span class="playground-label">Format</span>
+                  <select class="playground-select" id="stream-format">
+                    <option value="mp4">mp4</option>
+                    <option value="mp3">mp3</option>
+                  </select>
+                </div>
+                <div class="playground-input-group">
+                  <span class="playground-label">Quality</span>
+                  <select class="playground-select" id="stream-quality">
+                    <option value="highest">highest</option>
+                    <option value="lowest">lowest</option>
+                  </select>
+                </div>
+                <button class="run-btn" onclick="openStream()">▶ Open</button>
+              </div>
+              <p style="color:var(--gray);font-size:12px;font-family:var(--mono);margin-top:8px">
+                ⚠ Stream opens directly in browser / new tab. Large files may take time to buffer.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DOWNLOAD -->
+      <div class="endpoint-card" id="download">
+        <div class="endpoint-header" onclick="toggleCard(this)">
+          <span class="endpoint-method method-get">GET</span>
+          <span class="endpoint-path">/api/download</span>
+          <span class="endpoint-desc">Download video or audio file</span>
+          <span class="chevron">▾</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-tabs">
+            <div class="endpoint-tab active" onclick="switchTab(this, 'download-params')">Parameters</div>
+            <div class="endpoint-tab" onclick="switchTab(this, 'download-example')">Example</div>
+            <div class="endpoint-tab" onclick="switchTab(this, 'download-try')">Try It</div>
+          </div>
+          <div id="download-params" class="tab-content active">
+            <table class="params-table">
+              <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th><th>Default</th></tr>
+              <tr>
+                <td><span class="param-name">id</span><span class="param-required">required</span></td>
+                <td><span class="param-type">string</span></td>
+                <td>Yes</td>
+                <td style="color:var(--gray2)">YouTube video ID</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><span class="param-name">format</span><span class="param-optional">optional</span></td>
+                <td><span class="param-type">string</span></td>
+                <td>No</td>
+                <td style="color:var(--gray2)"><code style="font-family:var(--mono);font-size:11px">mp4</code> | <code style="font-family:var(--mono);font-size:11px">mp3</code></td>
+                <td><span class="param-default">mp4</span></td>
+              </tr>
+              <tr>
+                <td><span class="param-name">quality</span><span class="param-optional">optional</span></td>
+                <td><span class="param-type">string</span></td>
+                <td>No</td>
+                <td style="color:var(--gray2)"><code style="font-family:var(--mono);font-size:11px">highest</code> | <code style="font-family:var(--mono);font-size:11px">lowest</code></td>
+                <td><span class="param-default">highest</span></td>
+              </tr>
+            </table>
+          </div>
+          <div id="download-example" class="tab-content">
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-lang">curl</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+              <pre class="code">curl "http://localhost:3000/api/download?id=dQw4w9WgXcQ&format=mp3&quality=highest" \
+     -o "never-gonna-give-you-up.mp3"</pre>
+            </div>
+          </div>
+          <div id="download-try" class="tab-content">
+            <div class="playground">
+              <div class="playground-row">
+                <div class="playground-input-group" style="flex:2">
+                  <span class="playground-label">Video ID</span>
+                  <input class="playground-input" id="dl-id" value="dQw4w9WgXcQ" />
+                </div>
+                <div class="playground-input-group">
+                  <span class="playground-label">Format</span>
+                  <select class="playground-select" id="dl-format">
+                    <option value="mp4">mp4</option>
+                    <option value="mp3">mp3</option>
+                  </select>
+                </div>
+                <div class="playground-input-group">
+                  <span class="playground-label">Quality</span>
+                  <select class="playground-select" id="dl-quality">
+                    <option value="highest">highest</option>
+                    <option value="lowest">lowest</option>
+                  </select>
+                </div>
+                <button class="run-btn" onclick="openDownload()">▼ Download</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+</div>
+
+<script>
+  // Works on any host — localhost, LAN IP, deployed server, etc.
+  const BASE_URL = `${window.location.protocol}//${window.location.host}/api`;
+
+  // Update all display elements with real base URL on load
+  document.addEventListener('DOMContentLoaded', () => {
+    const displayEl = document.getElementById('base-url-display');
+    if (displayEl) displayEl.textContent = BASE_URL;
+    const healthUrl = document.getElementById('health-url');
+    if (healthUrl) healthUrl.value = BASE_URL + '/health';
+    document.querySelectorAll('pre.code').forEach(pre => {
+      pre.textContent = pre.textContent.replace(/http:\/\/localhost:3000\/api/g, BASE_URL);
+    });
+  });
+
+  // ── UI helpers ──
+  function setActive(el) {
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function toggleCard(header) {
+    const card = header.closest('.endpoint-card');
+    card.classList.toggle('expanded');
+  }
+
+  function switchTab(tabEl, contentId) {
+    const body = tabEl.closest('.endpoint-body');
+    body.querySelectorAll('.endpoint-tab').forEach(t => t.classList.remove('active'));
+    body.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    tabEl.classList.add('active');
+    document.getElementById(contentId).classList.add('active');
+  }
+
+  function copyBase() {
+    navigator.clipboard.writeText(BASE_URL);
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'copied!';
+    setTimeout(() => btn.textContent = 'copy', 1500);
+  }
+
+  function copyCode(btn) {
+    const code = btn.closest('.code-block').querySelector('pre').textContent;
+    navigator.clipboard.writeText(code);
+    btn.textContent = 'copied!';
+    setTimeout(() => btn.textContent = 'copy', 1500);
+  }
+
+  // ── Request runner ──
+  async function doRequest(endpoint, url) {
+    const statusEl = document.getElementById(`${endpoint}-status`);
+    const timeEl = document.getElementById(`${endpoint}-time`);
+    const responseEl = document.getElementById(`${endpoint}-response`);
+
+    statusEl.innerHTML = '<span class="status-loading">● Sending…</span>';
+    responseEl.className = 'response-body';
+    responseEl.textContent = '// Loading...';
+
+    const t0 = performance.now();
+    try {
+      const res = await fetch(url);
+      const ms = Math.round(performance.now() - t0);
+      const json = await res.json();
+      const pretty = JSON.stringify(json, null, 2);
+
+      const cls = res.status < 300 ? 'status-200' : res.status < 500 ? 'status-4xx' : 'status-5xx';
+      statusEl.innerHTML = `<span class="${cls}">● ${res.status} ${res.statusText}</span>`;
+      timeEl.textContent = `${ms}ms`;
+      responseEl.className = 'response-body';
+      responseEl.textContent = pretty;
+    } catch (e) {
+      const ms = Math.round(performance.now() - t0);
+      statusEl.innerHTML = `<span class="status-5xx">● Error</span>`;
+      timeEl.textContent = `${ms}ms`;
+      responseEl.className = 'response-body';
+      responseEl.textContent = `// ${e.message}\n// Is your server running at ${BASE_URL}?`;
+    }
+  }
+
+  function runRequest(endpoint) {
+    const url = document.getElementById(`${endpoint}-url`).value;
+    doRequest(endpoint, url);
+  }
+
+  function runSearch() {
+    const q = encodeURIComponent(document.getElementById('search-q').value);
+    const type = document.getElementById('search-type').value;
+    const order = document.getElementById('search-order').value;
+    const limit = document.getElementById('search-limit').value;
+    doRequest('search', `${BASE_URL}/search?q=${q}&type=${type}&order=${order}&limit=${limit}`);
+  }
+
+  function runVideo() {
+    const id = document.getElementById('video-id').value;
+    doRequest('video', `${BASE_URL}/video?id=${id}`);
+  }
+
+  function runTrending() {
+    const region = document.getElementById('trending-region').value;
+    const limit = document.getElementById('trending-limit').value;
+    doRequest('trending', `${BASE_URL}/trending?region=${region}&limit=${limit}`);
+  }
+
+  function openStream() {
+    const id = document.getElementById('stream-id').value;
+    const format = document.getElementById('stream-format').value;
+    const quality = document.getElementById('stream-quality').value;
+    window.open(`${BASE_URL}/stream?id=${id}&format=${format}&quality=${quality}`, '_blank');
+  }
+
+  function openDownload() {
+    const id = document.getElementById('dl-id').value;
+    const format = document.getElementById('dl-format').value;
+    const quality = document.getElementById('dl-quality').value;
+    window.open(`${BASE_URL}/download?id=${id}&format=${format}&quality=${quality}`, '_blank');
+  }
+
+  function runComments() {
+    const id    = document.getElementById('comments-id').value;
+    const limit = document.getElementById('comments-limit').value;
+    doRequest('comments', `${BASE_URL}/comments?id=${id}&limit=${limit}`);
+  }
+
+  function runChannel() {
+    const handle = document.getElementById('channel-handle').value.trim();
+    const param  = handle ? `handle=${encodeURIComponent(handle)}` : '';
+    doRequest('channel', `${BASE_URL}/channel?${param}`);
+  }
+
+  function runRelated() {
+    const id    = document.getElementById('related-id').value;
+    const limit = document.getElementById('related-limit').value;
+    doRequest('related', `${BASE_URL}/related?id=${id}&limit=${limit}`);
+  }
+</script>
+</body>
+</html>
